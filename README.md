@@ -1,10 +1,9 @@
 # 🗣️ speech.nvim
 
-A lightweight, Lua Neovim plugin that converts text into spoken audio using the Google Cloud Text-to-Speech API. You can synthesize the entire buffer or just a visual selection, and save the output as `.wav` or `.mp3`.
+A lightweight, Lua Neovim plugin that converts text into spoken audio using the Google Cloud Text-to-Speech API or a local model that complies with OpenAI speech API specification. You can synthesize the entire buffer or just a visual selection, and save the output as `.wav` or `.mp3`.
 
 ## ✨ Features
 
-- **Pure Lua:** No Python, pip, or virtual environments - everything is handled asynchronously via Neovim jobs.
 - **Buffer or Selection:** Synthesize an entire file or just the text highlighted in visual mode.
 - **Format Support:** Automatically saves as `.wav` or converts to `.mp3` using `ffmpeg` based on your output file extension.
 - **Audio Processing:** Includes built-in fade-ins, pitch shifting, and time stretching for smoother audio playback.
@@ -35,20 +34,33 @@ gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 ```
 
-## 📦 Installation
+## 📦 Installation & Configuration
 
-Install the plugin using your preferred package manager:
+Install the plugin using your preferred package manager and configure the engine.
 
 ### [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     'your-username/speech.nvim', -- Or local path: dir = '~/path/to/speech_vim'
     opts = {
-        -- Default voice
+        -- Engine selection: 'google' (default) or 'local'
+        engine = 'google',
+
+        -- ==== GOOGLE ENGINE SETTINGS ====
         default_voice = 'en-GB-Wavenet-N',
+
+        -- ==== LOCAL ENGINE SETTINGS ====
+        -- Use any local OpenAI-compatible API server (e.g., Fish-Speech, F5-TTS)
+        local_url = 'http://localhost:8080/v1/audio/speech',
+        local_voice = 'alloy', -- Change to your cloned voice profile name
+        local_api_key = '',    -- Optional, if your local server requires it
+        local_model = 'tts-1',
+
+        -- ==== AUDIO PROCESSING SETTINGS ====
         -- Speed multiplier (1.0 = normal, 0.5 = double speed)
         factor = 0.81,
-        -- Pitch shift in semitones (0.0 = normal)
+        
+        -- Pitch shift in semitones (0.0 = normal, negative = lower, positive = higher)
         pitch_shift = -0.5,
     }
 }
@@ -60,7 +72,11 @@ use {
     'your-username/speech.nvim', -- Or local path: '~/path/to/speech_vim'
     config = function()
         require('speech_vim').setup({
-            default_voice = 'en-GB-Wavenet-N',
+            engine = 'local', -- Example: Switching to a local model
+            local_url = 'http://localhost:8080/v1/audio/speech',
+            local_voice = 'my_custom_voice',
+            factor = 1.0,     -- Example: Disable time-stretching
+            pitch_shift = 0.0 -- Example: Disable pitch-shifting
         })
     end
 }
